@@ -1,13 +1,16 @@
 import sqlite3
 import os
+import shutil
 
 def create_db(db_name):
 
     try:
-        conection_sale = sqlite3.connect(f'{db_name}_sale.db')
-        conection_inventory = sqlite3.connect(f'{db_name}_inventory.db')
-        conection_purchase = sqlite3.connect(f'{db_name}_purchase.db')
-        conection_production = sqlite3.connect(f'{db_name}_production.db')
+        os.makedirs(f'database/{db_name}', exist_ok=True)
+
+        conection_sale = sqlite3.connect(f'database/{db_name}/{db_name}_sale.db')
+        conection_inventory = sqlite3.connect(f'database/{db_name}/{db_name}_inventory.db')
+        conection_purchase = sqlite3.connect(f'database/{db_name}/{db_name}_purchase.db')
+        conection_production = sqlite3.connect(f'database/{db_name}/{db_name}_production.db')
 
         cursor_sale = conection_sale.cursor()
         cursor_inventory = conection_inventory.cursor()
@@ -33,7 +36,7 @@ def create_db(db_name):
                 )
             ''')
         cursor_purchase.execute('''
-            CREATE TABLE IF NOT EXISTS sales (
+            CREATE TABLE IF NOT EXISTS purchase (
                 purchase_number INTEGER PRIMARY KEY AUTOINCREMENT,
                 date TEXT NOT NULL,
                 item TEXT NOT NULL,
@@ -43,11 +46,11 @@ def create_db(db_name):
             )
             ''')
         cursor_production.execute('''
-            CREATE TABLE IF NOT EXISTS sales (
+            CREATE TABLE IF NOT EXISTS production (
                 production_number INTEGER PRIMARY KEY AUTOINCREMENT,
                 date TEXT NOT NULL,
                 item TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
+                quantity INTEGER NOT NULL
             )
             ''')
 
@@ -67,16 +70,9 @@ def create_db(db_name):
 
 def delete_db(db_name):
     try:
-        databases = [
-            f"{db_name}_sale.db",
-            f"{db_name}_inventory.db",
-            f"{db_name}_purchase.db",
-            f"{db_name}_production.db"
-        ]
-
-        for db in databases:
-            if os.path.exists(db):
-                os.remove(db)
+        directory_path = f"database/{db_name}"
+        if os.path.exists(directory_path):
+            shutil.rmtree(directory_path)
 
     except Exception as e:
-        print(f"An error occurred while deleting databases: {e}")
+        print(f"An error occurred while deleting the directory: {e}")
