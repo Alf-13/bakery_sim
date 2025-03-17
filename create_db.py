@@ -2,18 +2,18 @@ import sqlite3
 import os
 import shutil
 
+file_path = f'{os.path.dirname(os.path.abspath(__file__))}/database'
+
 def create_db(db_name):
-
+    
     try:
-        os.makedirs(f'database/{db_name}', exist_ok=True)
+        os.makedirs(f'{file_path}/{db_name}', exist_ok=True)
 
-        conection_sale = sqlite3.connect(f'database/{db_name}/{db_name}_sale.db')
-        conection_inventory = sqlite3.connect(f'database/{db_name}/{db_name}_inventory.db')
-        conection_purchase = sqlite3.connect(f'database/{db_name}/{db_name}_purchase.db')
-        conection_production = sqlite3.connect(f'database/{db_name}/{db_name}_production.db')
+        conection_sale = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_sale.db')
+        conection_purchase = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_purchase.db')
+        conection_production = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_production.db')
 
         cursor_sale = conection_sale.cursor()
-        cursor_inventory = conection_inventory.cursor()
         cursor_purchase = conection_purchase.cursor()
         cursor_production = conection_production.cursor()
 
@@ -27,14 +27,7 @@ def create_db(db_name):
                 total REAL NOT NULL
             )
             ''')
-        cursor_inventory.execute('''
-            CREATE TABLE IF NOT EXISTS inventory (
-                location TEXT PRIMARY KEY,
-                stow_date TEXT NOT NULL,
-                item TEXT NOT NULL,
-                quantity INTEGER NOT NULL
-                )
-            ''')
+        
         cursor_purchase.execute('''
             CREATE TABLE IF NOT EXISTS purchase (
                 purchase_number INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,12 +48,10 @@ def create_db(db_name):
             ''')
 
         conection_sale.commit()
-        conection_inventory.commit()
         conection_purchase.commit()
         conection_production.commit()
 
         conection_sale.close()
-        conection_inventory.close()
         conection_purchase.close()
         conection_production.close()
 
@@ -70,7 +61,7 @@ def create_db(db_name):
 
 def delete_db(db_name):
     try:
-        directory_path = f"database/{db_name}"
+        directory_path = f"{file_path}/{db_name}"
         if os.path.exists(directory_path):
             shutil.rmtree(directory_path)
 

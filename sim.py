@@ -4,6 +4,9 @@ import os
 import sqlite3
 from create_db import create_db, delete_db
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+database_path = os.path.join(script_dir, "database")
+
 class DatabaseApp:
     def __init__(self, root):
         self.root = root
@@ -13,6 +16,9 @@ class DatabaseApp:
         # Input field
         self.entry = tk.Entry(self.root, width=30)
         self.entry.pack(pady=10)
+
+        # Bind the "Enter" key to the create_database function
+        self.entry.bind("<Return>", lambda event: self.create_database())
 
         # Create Sim button
         self.create_button = tk.Button(self.root, text="Create Sim", command=self.create_database)
@@ -27,8 +33,9 @@ class DatabaseApp:
     def create_database(self):
         db_name = self.entry.get().strip()
         if db_name:
-            if not os.path.exists("database"):
-                os.makedirs("database")
+            if not os.path.exists(database_path):
+                os.makedirs(database_path)
+                print('Made database directory')
             create_db(db_name)  # Assumes create_db creates databases in the "database/" folder
             self.update_db_list()
             messagebox.showinfo("Success", f"Directory and databases for '{db_name}' created successfully!")
@@ -51,9 +58,10 @@ class DatabaseApp:
         self.db_list = []
 
         # Check for directories inside the "database" folder
-        if os.path.exists("database"):
-            for folder in os.listdir("database"):
-                folder_path = os.path.join("database", folder)
+        if os.path.exists(database_path):
+            print("Database path exists. Scanning for directories...")
+            for folder in os.listdir(database_path):
+                folder_path = os.path.join(database_path, folder)
                 if os.path.isdir(folder_path):  # Ensure it's a directory
                     self.db_list.append(folder)
 
@@ -67,6 +75,7 @@ class DatabaseApp:
 
             delete_btn = tk.Button(frame, text="Delete", command=lambda name=db_name: self.delete_database(name))
             delete_btn.pack(side="right", padx=10)
+
 
 
 if __name__ == "__main__":
