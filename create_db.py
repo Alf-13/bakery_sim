@@ -9,78 +9,86 @@ def create_db(db_name):
     try:
         os.makedirs(f'{file_path}/{db_name}', exist_ok=True)
 
-        conection_sale = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_sale.db')
-        conection_purchase = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_purchase.db')
-        conection_production = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_production.db')
-        conection_inventory = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_inventory.db')
-        conection_bank = sqlite3.connect(f'{file_path}/{db_name}/{db_name}_bank.db')
+        connection_sale = sqlite3.connect(f'{file_path}/{db_name}/sale.db')
+        connection_purchase = sqlite3.connect(f'{file_path}/{db_name}/purchase.db')
+        connection_ingredients = sqlite3.connect(f'{file_path}/{db_name}/ingredients.db')
+        connection_bread = sqlite3.connect(f'{file_path}/{db_name}/bread.db')
+        connection_bank = sqlite3.connect(f'{file_path}/{db_name}/bank.db')
 
-        cursor_sale = conection_sale.cursor()
-        cursor_purchase = conection_purchase.cursor()
-        cursor_production = conection_production.cursor()
-        cursor_inventory = conection_inventory.cursor()
-        cursor_bank = conection_bank.cursor()
+        cursor_sale = connection_sale.cursor()
+        cursor_purchase = connection_purchase.cursor()
+        cursor_ingredients = connection_ingredients.cursor()
+        cursor_bread = connection_bread.cursor()
+        cursor_bank = connection_bank.cursor()
 
         cursor_sale.execute('''
-            CREATE TABLE IF NOT EXISTS sales (
-                sale_number INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT NOT NULL,
-                item TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
-                price REAL NOT NULL,
-                total REAL NOT NULL
+            CREATE TABLE IF NOT EXISTS sale (
+                transaction_id TEXT NOT NULL,
+                transaction_number INTEGER NOT NULL,
+                day INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                demand INTEGER NOT NULL,
+                purchased INTEGER NOT NULL
             )
             ''')
         
         cursor_purchase.execute('''
             CREATE TABLE IF NOT EXISTS purchase (
-                purchase_number INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT NOT NULL,
-                item TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
-                price REAL NOT NULL,
-                total REAL NOT NULL
+                transaction_id TEXT NOT NULL,
+                transaction_number INTEGER NOT NULL,
+                day INTEGER NOT NULL,
+                purchased_qty INTEGER NOT NULL,
+                price FLOAT NOT NULL
             )
             ''')
-        cursor_production.execute('''
-            CREATE TABLE IF NOT EXISTS production (
-                production_number INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT NOT NULL,
-                item TEXT NOT NULL,
-                quantity INTEGER NOT NULL
+        cursor_ingredients.execute('''
+            CREATE TABLE IF NOT EXISTS ingredients (
+                transaction_id TEXT NOT NULL,
+                transaction_number INTEGER NOT NULL,
+                day INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                description TEXT NOT NULL,
+                status TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
+                available_qty INTEGER NOT NULL
             )
             ''')
         
-        cursor_inventory.execute('''
-            CREATE TABLE IF NOT EXISTS inventory (
-                inventory_number INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT NOT NULL,
-                item TEXT NOT NULL,
-                quantity INTEGER NOT NULL
+        cursor_bread.execute('''
+            CREATE TABLE IF NOT EXISTS bread (
+                transaction_id TEXT NOT NULL,
+                transaction_number INTEGER NOT NULL,
+                day INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                batch INTEGER NOT NULL,
+                loaf INTEGER NOT NULL,
+                status TEXT NOT NULL
             )
             ''')
         
         cursor_bank.execute('''
             CREATE TABLE IF NOT EXISTS bank (
-                transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT NOT NULL,
-                transaction_type TEXT NOT NULL,
-                amount DECIMAL(18, 2) NOT NULL,
-                balance DECIMAL(18, 2) NOT NULL
+                transaction_id TEXT NOT NULL,
+                transaction_number INTEGER NOT NULL,
+                day INTEGER NOT NULL,
+                description TEXT NOT NULL,
+                amount FLOAT NOT NULL,
+                balance FLOAT NOT NULL
             )
             ''')
 
-        conection_sale.commit()
-        conection_purchase.commit()
-        conection_production.commit()
-        conection_inventory.commit()
-        conection_bank.commit()
+        connection_sale.commit()
+        connection_purchase.commit()
+        connection_ingredients.commit()
+        connection_bread.commit()
+        connection_bank.commit()
 
-        conection_sale.close()
-        conection_purchase.close()
-        conection_production.close()
-        conection_inventory.close()
-        conection_bank.close()
+        connection_sale.close()
+        connection_purchase.close()
+        connection_ingredients.close()
+        connection_bread.close()
+        connection_bank.close()
 
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")

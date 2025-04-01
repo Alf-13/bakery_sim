@@ -4,7 +4,7 @@ import numpy as np
 def daily_customers(monthly_marketing_spend):
     if monthly_marketing_spend < 0:
         monthly_marketing_spend = 0
-    monthly_customers = 100*monthly_marketing_spend**(1/3)+360
+    monthly_customers = 100*monthly_marketing_spend**(1/2)+360
     rand_monthly_customers = np.random.normal(monthly_customers, (monthly_customers*0.1))
     customers = int(np.round(rand_monthly_customers/30,0))
     return customers
@@ -31,5 +31,3 @@ def order_generator(monthly_marketing_spend, bread_price):
         daily_orders[i] = [purchase_time, purchase_qty]
     daily_orders = daily_orders[np.argsort(daily_orders[:,0])]
     return daily_orders
-
-#Expiration time
