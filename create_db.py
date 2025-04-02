@@ -48,10 +48,8 @@ def create_db(db_name):
                 transaction_number INTEGER NOT NULL,
                 day INTEGER NOT NULL,
                 time INTEGER NOT NULL,
-                description TEXT NOT NULL,
                 status TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
-                available_qty INTEGER NOT NULL
+                batch INTEGER NOT NULL
             )
             ''')
         
