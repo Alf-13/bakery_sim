@@ -5,7 +5,7 @@ def customer_purchase(connection_bread, cursor_bread, connection_sale, cursor_sa
     for i in range(demand):
         cursor_bread.execute('''
         SELECT MIN(batch), MIN(loaf) FROM bread
-        WHERE "status" = "ready"
+        WHERE "status" = "available"
         ''')
         loaf_check = cursor_bread.fetchone()
         if loaf_check != None:
@@ -54,7 +54,7 @@ def bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_in
         SET "status" = ?
         WHERE "batch" = (SELECT MIN(batch) FROM ingredients
                         WHERE "status" = "available")
-        ''',(f'b{transaction_number}'))
+        ''',(f'b{transaction_number}',))
     connection_bread.commit()
     connection_ingredients.commit()
 
@@ -97,7 +97,7 @@ def pay_bill(connection_bank, cursor_bank, transaction_number, day, description,
     cursor_bank.execute('''
     INSERT INTO bank (transaction_id, transaction_number, day, description, amount, balance)
     VALUES (?,?,?,?,?,?)
-    ''',('x', transaction_number, day, description, amount, (balance-amount)))
+    ''',('x', transaction_number, day, description, -amount, (balance-amount)))
     connection_bank.commit()
 
 

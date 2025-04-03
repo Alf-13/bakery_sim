@@ -16,7 +16,7 @@ def customer_demand(bread_price):
     if rand_demand > 5:
         demand = 5
     elif rand_demand < 1:
-        demand = 0
+        demand = 1
     else:
         demand = rand_demand
     return demand  

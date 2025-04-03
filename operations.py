@@ -5,7 +5,7 @@ def expired_batch(connection_bread, cursor_bread, day, time):
     cursor_bread.execute('''
     UPDATE bread
     SET "status" = "expired"
-    WHERE "status" = "ready" AND ("day" < ? OR ("day" = ? AND "time" <= ?))
+    WHERE "status" = "available" AND ("day" < ? OR ("day" = ? AND "time" <= ?))
     ''',(expiration_day, expiration_day, time+60))
     connection_bread.commit()
 
@@ -20,7 +20,7 @@ def finished_bread(connection_bread, cursor_bread, day, time):
 def bread_check(cursor_bread):
     cursor_bread.execute('''
     SELECT COUNT(*) FROM bread
-    WHERE "status" = "baking" OR "available"
+    WHERE "status" = "baking" OR "status" = "available"
     ''')
     bread_count = cursor_bread.fetchone()[0]
     return bread_count
@@ -38,13 +38,13 @@ def ingredient_delivery(connection_ingredients, cursor_ingredients, day):
     UPDATE ingredients
     SET "status" = "available"
     WHERE "status" = "ordered" AND "day" <= ?
-    ''',(day-2))
+    ''',((day-2),))
     connection_ingredients.commit()
 
 def purchase_ingredient_check(cursor_ingredients):
     cursor_ingredients.execute('''
     SELECT COUNT(*) FROM ingredients
-    WHERE "status" = "available" OR "ordered"
+    WHERE "status" = "available" OR "status" = "ordered"
     ''')
     purchase_ingredient_count = cursor_ingredients.fetchone()[0]
     return purchase_ingredient_count
@@ -65,6 +65,13 @@ def bread_sold(cursor_sale, day):
     cursor_sale.execute('''
     SELECT SUM(purchased) FROM sale
     WHERE "day" = ?
-    ''',(day))
+    ''',(day,))
     bread_sold_qty = cursor_sale.fetchone()[0]
     return bread_sold_qty
+
+def account_balance(cursor_bank):
+    cursor_bank.execute('''
+    SELECT balance FROM bank
+    WHERE "transaction_number" = (SELECT MAX(transaction_number) FROM bank)
+    ''')
+    return cursor_bank.fetchone()[0]
