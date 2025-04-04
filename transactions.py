@@ -31,30 +31,36 @@ def customer_purchase(connection_bread, cursor_bread, connection_sale, cursor_sa
     
 
 def bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_ingredients, transaction_number, day, time):
-    cursor_ingredients.execute('''
-    SELECT batch FROM ingredients
-    WHERE "status" = "available"
+    cursor_bread.execute('''
+    SELECT status FROM bread
+    WHERE "status" = "baking"
     ''')
-    if cursor_ingredients.fetchone() != None:
-        cursor_bread.execute('''
-        SELECT MAX(batch) FROM bread
-        ''')
-        max_batch = cursor_bread.fetchone()[0]
-        if max_batch != None:
-            batch = max_batch+1
-        else:
-            batch = 1
-        for i in range(1,51):
-            cursor_bread.execute('''
-            INSERT INTO bread (transaction_id, transaction_number, day, time, batch, loaf, status)
-            VALUES (?,?,?,?,?,?,?)
-            ''',('b', transaction_number, day, time, batch, i, 'baking'))
+    bake_check = cursor_bread.fetchone()
+    if bake_check is None:
         cursor_ingredients.execute('''
-        UPDATE ingredients
-        SET "status" = ?
-        WHERE "batch" = (SELECT MIN(batch) FROM ingredients
-                        WHERE "status" = "available")
-        ''',(f'b{transaction_number}',))
+        SELECT batch FROM ingredients
+        WHERE "status" = "available"
+        ''')
+        if cursor_ingredients.fetchone() != None:
+            cursor_bread.execute('''
+            SELECT MAX(batch) FROM bread
+            ''')
+            max_batch = cursor_bread.fetchone()[0]
+            if max_batch != None:
+                batch = max_batch+1
+            else:
+                batch = 1
+            for i in range(1,51):
+                cursor_bread.execute('''
+                INSERT INTO bread (transaction_id, transaction_number, day, time, batch, loaf, status)
+                VALUES (?,?,?,?,?,?,?)
+                ''',('b', transaction_number, day, time, batch, i, 'baking'))
+            cursor_ingredients.execute('''
+            UPDATE ingredients
+            SET "status" = ?
+            WHERE "batch" = (SELECT MIN(batch) FROM ingredients
+                            WHERE "status" = "available")
+            ''',(f'b{transaction_number}',))
     connection_bread.commit()
     connection_ingredients.commit()
 

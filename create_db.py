@@ -1,6 +1,5 @@
 import sqlite3
 import os
-import shutil
 
 def create_db(file_path, db_name, connection_sale, connection_ingredients, connection_bread,
           connection_bank, cursor_sale,cursor_ingredients, cursor_bread, cursor_bank):
@@ -55,9 +54,3 @@ def create_db(file_path, db_name, connection_sale, connection_ingredients, conne
     connection_ingredients.commit()
     connection_bread.commit()
     connection_bank.commit()
-
-
-def delete_db(file_path, db_name):
-    directory_path = f"{file_path}/{db_name}"
-    if os.path.exists(directory_path):
-        shutil.rmtree(directory_path)

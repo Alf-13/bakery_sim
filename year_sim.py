@@ -5,11 +5,13 @@ from operations import expired_batch, finished_bread, bread_check, ingredient_ch
 import os
 import sqlite3
 import pandas as pd
+import shutil
 
 #################
 # user inputs
-db_name = 'test1'
-monthly_marketing_spend = 500.0 #dollars
+db_name = 'test3'
+sim_days = 31
+monthly_marketing_spend = 1000.0 #dollars
 bread_price = 2.50 #dollars
 bread_cost = 1.50 #dollars
 ingredient_buy_setpoint = 5 #available batches of ingredients
@@ -18,12 +20,15 @@ bake_batch_setpoint = 10 #available loaves
 #################
 
 file_path = f'{os.path.dirname(os.path.abspath(__file__))}/database'
-os.makedirs(f'{file_path}/{db_name}', exist_ok=True)
+directory_path = f"{file_path}/{db_name}"
+if os.path.exists(directory_path):
+    shutil.rmtree(directory_path)
+os.makedirs(directory_path, exist_ok=True)
 
-connection_sale = sqlite3.connect(f'{file_path}/{db_name}/sale.db')
-connection_ingredients = sqlite3.connect(f'{file_path}/{db_name}/ingredients.db')
-connection_bread = sqlite3.connect(f'{file_path}/{db_name}/bread.db')
-connection_bank = sqlite3.connect(f'{file_path}/{db_name}/bank.db')
+connection_sale = sqlite3.connect(f'{directory_path}/sale.db')
+connection_ingredients = sqlite3.connect(f'{directory_path}/ingredients.db')
+connection_bread = sqlite3.connect(f'{directory_path}/bread.db')
+connection_bank = sqlite3.connect(f'{directory_path}/bank.db')
 
 cursor_sale = connection_sale.cursor()
 cursor_ingredients = connection_ingredients.cursor()
@@ -47,7 +52,7 @@ purchase_ingredients(connection_ingredients, cursor_ingredients, connection_bank
 
 transaction_number = 4
 
-for day in range(1,10):
+for day in range(1,(sim_days+1)):
     purchase_time = 0
     daily_orders = order_generator(monthly_marketing_spend, bread_price)
     ingredient_delivery(connection_ingredients, cursor_ingredients,day)
@@ -62,7 +67,6 @@ for day in range(1,10):
         finished_bread(connection_bread, cursor_bread, day, purchase_time)
         customer_purchase(connection_bread, cursor_bread, connection_sale, cursor_sale, transaction_number, day, purchase_time, purchase_qty)
         transaction_number += 1
-        print(f'Bread Check: {bread_check(cursor_bread)}')
         if bread_check(cursor_bread) <= bake_batch_setpoint and ingredient_check(cursor_ingredients) > 0 and purchase_time <= 540:
             bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_ingredients, transaction_number, day, purchase_time)
             transaction_number += 1
@@ -95,10 +99,10 @@ df_ingredients = pd.read_sql_query(query_ingredients, connection_ingredients)
 df_bread = pd.read_sql_query(query_bread, connection_bread)
 df_bank = pd.read_sql_query(query_bank, connection_bank)
 
-df_sale.to_excel(f'{file_path}/{db_name}/sale.xlsx', index=False)
-df_ingredients.to_excel(f'{file_path}/{db_name}/ingredients.xlsx', index=False)
-df_bread.to_excel(f'{file_path}/{db_name}/bread.xlsx', index=False)
-df_bank.to_excel(f'{file_path}/{db_name}/bank.xlsx', index=False)
+df_sale.to_excel(f'{directory_path}/sale.xlsx', index=False)
+df_ingredients.to_excel(f'{directory_path}/ingredients.xlsx', index=False)
+df_bread.to_excel(f'{directory_path}/bread.xlsx', index=False)
+df_bank.to_excel(f'{directory_path}/bank.xlsx', index=False)
 
 connection_sale.close()
 connection_ingredients.close()
