@@ -68,7 +68,7 @@ def bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_in
 
 
 def purchase_ingredients(connection_ingredients, cursor_ingredients, connection_bank, cursor_bank, transaction_number, day, batch_qty, bread_cost):
-    total_cost = batch_qty*50*bread_cost
+    total_cost = batch_qty*oven_capacity*bread_cost
     cursor_ingredients.execute('''
     SELECT MAX(batch) FROM ingredients
     ''')

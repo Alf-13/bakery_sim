@@ -2,6 +2,7 @@ from create_db import create_db
 from order_generator import order_generator
 from transactions import customer_purchase, bake_batch, purchase_ingredients, pay_bill, deposit_revenue
 from operations import expired_batch, finished_bread, bread_check, ingredient_check, ingredient_delivery, purchase_ingredient_check, credit_expense, bread_sold, account_balance
+from report import report_txt
 import os
 import sqlite3
 import pandas as pd
@@ -9,14 +10,17 @@ import shutil
 
 #################
 # user inputs
-db_name = 'test1'
+db_name = 'test'
 sim_days = 31
-monthly_marketing_spend = 1000.00 #dollars
-bread_price = 2.50 #dollars
+monthly_marketing_spend = 10000.00 #dollars
+bread_price = 1.50 #dollars
 bread_cost = 1.50 #dollars
 ingredient_buy_setpoint = 5 #available batches of ingredients
 ingredient_buy_qty = 20 #batches of ingredients
-bake_batch_setpoint = 10 #available loaves
+bake_batch_setpoint = 1 #available loaves
+starting_account_balance = 10000.00
+rent_expense = 1500.00
+payroll_expense = 700.00
 #################
 
 file_path = f'{os.path.dirname(os.path.abspath(__file__))}/database'
@@ -42,11 +46,11 @@ create_db(file_path, db_name, connection_sale, connection_ingredients, connectio
 cursor_bank.execute('''
 INSERT INTO bank (transaction_id, transaction_number, day, description, amount, balance)
 VALUES (?,?,?,?,?,?)
-''',('x',0,0,'initial deposit',10000.00,10000.00))
+''',('x',0,0,'initial deposit',starting_account_balance,starting_account_balance))
 
 #pay initial bills
 pay_bill(connection_bank, cursor_bank, 1, 0, 'marketing expense', monthly_marketing_spend)
-pay_bill(connection_bank, cursor_bank, 2, 0, 'rent expense', 1500.00)
+pay_bill(connection_bank, cursor_bank, 2, 0, 'rent expense', rent_expense)
 
 purchase_ingredients(connection_ingredients, cursor_ingredients, connection_bank, cursor_bank, 3, 0, ingredient_buy_qty, bread_cost)
 
@@ -76,12 +80,12 @@ for day in range(1,(sim_days+1)):
     deposit_revenue(connection_bank, cursor_bank, transaction_number, day, (bread_sold(cursor_sale, day)*bread_price))
     transaction_number += 1
     if (day % 7) == 0:
-        pay_bill(connection_bank, cursor_bank, transaction_number, day, 'payroll expense', 700.00)
+        pay_bill(connection_bank, cursor_bank, transaction_number, day, 'payroll expense', payroll_expense)
         transaction_number += 1
     if (day % 30) == 0:
         pay_bill(connection_bank, cursor_bank, transaction_number, day, 'marketing expense', monthly_marketing_spend)
         transaction_number += 1
-        pay_bill(connection_bank, cursor_bank, transaction_number, day, 'rent expense', 1500.00)
+        pay_bill(connection_bank, cursor_bank, transaction_number, day, 'rent expense', rent_expense)
         transaction_number += 1
         financing = credit_expense(cursor_bank)
         if financing != 0:
@@ -103,6 +107,15 @@ df_sale.to_excel(f'{directory_path}/sale.xlsx', index=False)
 df_ingredients.to_excel(f'{directory_path}/ingredients.xlsx', index=False)
 df_bread.to_excel(f'{directory_path}/bread.xlsx', index=False)
 df_bank.to_excel(f'{directory_path}/bank.xlsx', index=False)
+
+text = report_txt(cursor_sale, cursor_ingredients, cursor_bread,
+               cursor_bank, sim_days, monthly_marketing_spend,
+               bread_price, bread_cost, ingredient_buy_setpoint,
+               ingredient_buy_qty, bake_batch_setpoint, db_name, 
+               rent_expense, payroll_expense, starting_account_balance)
+file = open(f'{directory_path}/Report_{db_name}.txt', 'w')
+file.write(text)
+file.close()
 
 connection_sale.close()
 connection_ingredients.close()

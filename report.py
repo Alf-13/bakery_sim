@@ -85,4 +85,41 @@ def total_credit_expense(cursor_bank):
     if credit_expense != None:
         return credit_expense
     else:
-        return 0
+        return 0.0
+    
+
+def report_txt(cursor_sale, cursor_ingredients, cursor_bread,
+               cursor_bank, sim_days, monthly_marketing_spend,
+               bread_price, bread_cost, ingredient_buy_setpoint,
+               ingredient_buy_qty, bake_batch_setpoint, db_name, 
+               rent_expense, payroll_expense, starting_account_balance):
+    revenue = total_revenue(cursor_bank)
+    expense = total_expense(cursor_bank)
+    income = net_income(revenue, expense)
+    margin = profit_margin(income, revenue)
+    text = f'''Sim Name: {db_name}\n
+    Sim Days: {sim_days}\n
+    Monthly Marketing Spend: ${monthly_marketing_spend:.2f}\n
+    Bread Cost: ${bread_cost:.2f}\n
+    Bread Price: ${bread_price:.2f}\n
+    Ingredient Buy Setpoint: {ingredient_buy_setpoint}\n
+    Ingredient Buy Qty: {ingredient_buy_qty}\n
+    Bake Batch Setpoint: {bake_batch_setpoint}\n
+    Starting Account Balance: ${starting_account_balance:.2f}\n
+    Rent Expense: ${rent_expense:.2f}\n
+    Payroll Expense: ${payroll_expense:.2f}\n 
+    ------------------------------------------\n
+    Total Revenue: ${revenue:.2f}\n
+    Total Expense: ${expense:.2f}\n
+    Net Income: ${income:.2f}\n
+    Profit Margin: {(margin*100):.1f}%\n
+    Final Account Balance: ${final_account_balance(cursor_bank):.2f}\n
+    Total Credit Expense: ${total_credit_expense(cursor_bank):.2f}\n
+    ------------------------------------------\n
+    Average Daily Customers: {(customer_qty(cursor_sale)/sim_days):.0f}\n
+    Average Order Size: {(order_demand(cursor_sale)/customer_qty(cursor_sale)):.1f}\n
+    Average Missed Orders: {(missed_orders(cursor_sale)/sim_days):.1f}\n
+    Used Oven Capacity: {(used_oven_capacity(cursor_bread, sim_days)*100):.1f}%\n
+    Average Expired Loaves: {(expired_loaves(cursor_bread)/sim_days):.1f}
+    '''
+    return text

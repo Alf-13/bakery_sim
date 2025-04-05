@@ -37,7 +37,7 @@ def ingredient_delivery(connection_ingredients, cursor_ingredients, day):
     cursor_ingredients.execute('''
     UPDATE ingredients
     SET status = 'available'
-    WHERE status = 'ordered'= AND day <= ?
+    WHERE status = 'ordered' AND day <= ?
     ''',((day-2),))
     connection_ingredients.commit()
 
