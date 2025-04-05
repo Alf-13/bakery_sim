@@ -1,18 +1,20 @@
 import sqlite3
 
+oven_capacity = 25 #loaves
+
 def customer_purchase(connection_bread, cursor_bread, connection_sale, cursor_sale, transaction_number, day, time, demand):
     missed_sale = 0
     for i in range(demand):
         cursor_bread.execute('''
         SELECT MIN(batch), MIN(loaf) FROM bread
-        WHERE "status" = "available"
+        WHERE status = 'available'
         ''')
         loaf_check = cursor_bread.fetchone()
         if loaf_check != None:
             cursor_bread.execute('''
             UPDATE bread
-            SET "status" = ?
-            WHERE "batch" = ? AND "loaf" = ?
+            SET status = ?
+            WHERE batch = ? AND loaf = ?
             ''',(f's{transaction_number}', loaf_check[0], loaf_check[1]))
         else:
             missed_sale += 1
@@ -33,13 +35,13 @@ def customer_purchase(connection_bread, cursor_bread, connection_sale, cursor_sa
 def bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_ingredients, transaction_number, day, time):
     cursor_bread.execute('''
     SELECT status FROM bread
-    WHERE "status" = "baking"
+    WHERE status = 'baking'
     ''')
     bake_check = cursor_bread.fetchone()
     if bake_check is None:
         cursor_ingredients.execute('''
         SELECT batch FROM ingredients
-        WHERE "status" = "available"
+        WHERE status = 'available'
         ''')
         if cursor_ingredients.fetchone() != None:
             cursor_bread.execute('''
@@ -50,16 +52,16 @@ def bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_in
                 batch = max_batch+1
             else:
                 batch = 1
-            for i in range(1,51):
+            for i in range(1,(oven_capacity+1)):
                 cursor_bread.execute('''
                 INSERT INTO bread (transaction_id, transaction_number, day, time, batch, loaf, status)
                 VALUES (?,?,?,?,?,?,?)
                 ''',('b', transaction_number, day, time, batch, i, 'baking'))
             cursor_ingredients.execute('''
             UPDATE ingredients
-            SET "status" = ?
-            WHERE "batch" = (SELECT MIN(batch) FROM ingredients
-                            WHERE "status" = "available")
+            SET status = ?
+            WHERE batch = (SELECT MIN(batch) FROM ingredients
+                            WHERE status = 'available')
             ''',(f'b{transaction_number}',))
     connection_bread.commit()
     connection_ingredients.commit()
@@ -83,7 +85,7 @@ def purchase_ingredients(connection_ingredients, cursor_ingredients, connection_
         batch += 1
     cursor_bank.execute('''
     SELECT balance FROM bank
-    WHERE "transaction_number" = (SELECT MAX(transaction_number) FROM bank)
+    WHERE transaction_number = (SELECT MAX(transaction_number) FROM bank)
     ''')
     balance = cursor_bank.fetchone()[0]
     cursor_bank.execute('''
@@ -97,7 +99,7 @@ def purchase_ingredients(connection_ingredients, cursor_ingredients, connection_
 def pay_bill(connection_bank, cursor_bank, transaction_number, day, description, amount):
     cursor_bank.execute('''
     SELECT balance FROM bank
-    WHERE "transaction_number" = (SELECT MAX(transaction_number) FROM bank)
+    WHERE transaction_number = (SELECT MAX(transaction_number) FROM bank)
     ''')
     balance = cursor_bank.fetchone()[0]
     cursor_bank.execute('''
@@ -107,10 +109,10 @@ def pay_bill(connection_bank, cursor_bank, transaction_number, day, description,
     connection_bank.commit()
 
 
-def deposite_revenue(connection_bank, cursor_bank, transaction_number, day, amount):
+def deposit_revenue(connection_bank, cursor_bank, transaction_number, day, amount):
     cursor_bank.execute('''
     SELECT balance FROM bank
-    WHERE "transaction_number" = (SELECT MAX(transaction_number) FROM bank)
+    WHERE transaction_number = (SELECT MAX(transaction_number) FROM bank)
     ''')
     balance = cursor_bank.fetchone()[0]
     cursor_bank.execute('''

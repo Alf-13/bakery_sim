@@ -1,6 +1,6 @@
 from create_db import create_db
 from order_generator import order_generator
-from transactions import customer_purchase, bake_batch, purchase_ingredients, pay_bill, deposite_revenue
+from transactions import customer_purchase, bake_batch, purchase_ingredients, pay_bill, deposit_revenue
 from operations import expired_batch, finished_bread, bread_check, ingredient_check, ingredient_delivery, purchase_ingredient_check, credit_expense, bread_sold, account_balance
 import os
 import sqlite3
@@ -9,9 +9,9 @@ import shutil
 
 #################
 # user inputs
-db_name = 'test3'
+db_name = 'test1'
 sim_days = 31
-monthly_marketing_spend = 1000.0 #dollars
+monthly_marketing_spend = 1000.00 #dollars
 bread_price = 2.50 #dollars
 bread_cost = 1.50 #dollars
 ingredient_buy_setpoint = 5 #available batches of ingredients
@@ -42,7 +42,7 @@ create_db(file_path, db_name, connection_sale, connection_ingredients, connectio
 cursor_bank.execute('''
 INSERT INTO bank (transaction_id, transaction_number, day, description, amount, balance)
 VALUES (?,?,?,?,?,?)
-''',('x',0,0,'initial deposite',10000.00,10000.00))
+''',('x',0,0,'initial deposit',10000.00,10000.00))
 
 #pay initial bills
 pay_bill(connection_bank, cursor_bank, 1, 0, 'marketing expense', monthly_marketing_spend)
@@ -73,7 +73,7 @@ for day in range(1,(sim_days+1)):
     if purchase_ingredient_check(cursor_ingredients) <= ingredient_buy_setpoint:
        purchase_ingredients(connection_ingredients, cursor_ingredients, connection_bank, cursor_bank, transaction_number, day, ingredient_buy_qty, bread_cost)
        transaction_number += 1
-    deposite_revenue(connection_bank, cursor_bank, transaction_number, day, (bread_sold(cursor_sale, day)*bread_price))
+    deposit_revenue(connection_bank, cursor_bank, transaction_number, day, (bread_sold(cursor_sale, day)*bread_price))
     transaction_number += 1
     if (day % 7) == 0:
         pay_bill(connection_bank, cursor_bank, transaction_number, day, 'payroll expense', 700.00)
