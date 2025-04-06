@@ -6,11 +6,13 @@ def customer_purchase(connection_bread, cursor_bread, connection_sale, cursor_sa
     missed_sale = 0
     for i in range(demand):
         cursor_bread.execute('''
-        SELECT MIN(batch), MIN(loaf) FROM bread
+        SELECT batch, loaf FROM bread
         WHERE status = 'available'
+        ORDER BY batch, loaf
+        LIMIT 1
         ''')
         loaf_check = cursor_bread.fetchone()
-        if loaf_check != None:
+        if loaf_check:
             cursor_bread.execute('''
             UPDATE bread
             SET status = ?

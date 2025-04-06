@@ -11,13 +11,13 @@ import shutil
 #################
 # user inputs
 db_name = 'test'
-sim_days = 31
-monthly_marketing_spend = 10000.00 #dollars
-bread_price = 1.50 #dollars
+sim_days = 59
+monthly_marketing_spend = 1200.00 #dollars
+bread_price = 4.50 #dollars
 bread_cost = 1.50 #dollars
 ingredient_buy_setpoint = 5 #available batches of ingredients
-ingredient_buy_qty = 20 #batches of ingredients
-bake_batch_setpoint = 1 #available loaves
+ingredient_buy_qty = 15 #batches of ingredients
+bake_batch_setpoint = 20 #available loaves
 starting_account_balance = 10000.00
 rent_expense = 1500.00
 payroll_expense = 700.00
@@ -60,7 +60,7 @@ for day in range(1,(sim_days+1)):
     purchase_time = 0
     daily_orders = order_generator(monthly_marketing_spend, bread_price)
     ingredient_delivery(connection_ingredients, cursor_ingredients,day)
-    expired_batch(connection_bread, cursor_bread, day, purchase_time)
+    expired_batch(connection_bread, cursor_bread, day, purchase_time)    
     if bread_check(cursor_bread) <= bake_batch_setpoint and ingredient_check(cursor_ingredients) > 0 and purchase_time <= 540:
         bake_batch(connection_bread, cursor_bread, connection_ingredients, cursor_ingredients, transaction_number, day, purchase_time)
         transaction_number += 1

@@ -1,0 +1,48 @@
+Sim Name: test
+
+    Sim Days: 59
+
+    Monthly Marketing Spend: $1200.00
+
+    Bread Cost: $1.50
+
+    Bread Price: $4.50
+
+    Ingredient Buy Setpoint: 5
+
+    Ingredient Buy Qty: 15
+
+    Bake Batch Setpoint: 20
+
+    Starting Account Balance: $10000.00
+
+    Rent Expense: $1500.00
+
+    Payroll Expense: $700.00
+ 
+    ------------------------------------------
+
+    Total Revenue: $32710.50
+
+    Total Expense: $22250.00
+
+    Net Income: $10460.50
+
+    Profit Margin: 32.0%
+
+    Final Account Balance: $20460.50
+
+    Total Credit Expense: $0.00
+
+    ------------------------------------------
+
+    Average Daily Customers: 128
+
+    Average Order Size: 1.2
+
+    Average Missed Orders: 27.3
+
+    Used Oven Capacity: 49.0%
+
+    Average Expired Loaves: 0.0
+    

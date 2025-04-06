@@ -13,9 +13,9 @@ def total_revenue(cursor_bank):
 def total_expense(cursor_bank):
     cursor_bank.execute('''
     SELECT SUM(amount) FROM bank
-    WHERE description != 'deposit revenue' OR description != 'initial deposit'
+    WHERE description != 'deposit revenue' AND description != 'initial deposit'
     ''')
-    expense = cursor_bank.fetchone()[0]
+    expense = -cursor_bank.fetchone()[0]
     return expense
 
 
