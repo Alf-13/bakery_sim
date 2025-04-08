@@ -8,15 +8,25 @@ sim.py: This is the main file that runs the program. Here, the user updates vari
 #################
 # user inputs
 db_name = 'test'
+
 sim_days = 59
+
 monthly_marketing_spend = 1200.00 #dollars
+
 bread_price = 4.50 #dollars
+
 bread_cost = 1.50 #dollars
+
 ingredient_buy_setpoint = 5 #available batches of ingredients
+
 ingredient_buy_qty = 15 #batches of ingredients
+
 bake_batch_setpoint = 20 #available loaves
+
 starting_account_balance = 10000.00
+
 rent_expense = 1500.00
+
 payroll_expense = 700.00
 #################
 
